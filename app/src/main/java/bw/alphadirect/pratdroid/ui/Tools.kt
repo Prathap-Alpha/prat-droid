@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import bw.alphadirect.pratdroid.data.ReminderStore
 import bw.alphadirect.pratdroid.ui.theme.Accent
 import bw.alphadirect.pratdroid.util.Actions
+import java.util.Calendar
 
 @Composable
 fun QuickSendScreen(onBack: () -> Unit) {
@@ -85,7 +86,16 @@ fun QuickSendScreen(onBack: () -> Unit) {
 fun DayPlanScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
     val store = remember { ReminderStore(ctx) }
-    val today = remember { store.all() }
+    val today = remember {
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        val start = cal.timeInMillis
+        val end = start + 24L * 60 * 60 * 1000
+        store.all().filter { it.timeMillis in start until end }
+    }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { PratTopBar("Day Plan", onBack) }

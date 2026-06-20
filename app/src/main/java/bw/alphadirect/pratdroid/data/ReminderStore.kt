@@ -35,4 +35,7 @@ class ReminderStore(context: Context) {
     fun add(r: Reminder) = save(all() + r)
 
     fun remove(id: Long) = save(all().filterNot { it.id == id })
+
+    /** Next stable, collision-free id (sequential, small enough for an alarm requestCode). */
+    fun nextId(): Long = (all().maxOfOrNull { it.id } ?: 0L) + 1
 }

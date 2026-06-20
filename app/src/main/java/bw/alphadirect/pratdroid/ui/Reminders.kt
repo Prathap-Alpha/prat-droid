@@ -97,7 +97,7 @@ fun RemindersScreen(onBack: () -> Unit) {
         AddReminderDialog(
             onDismiss = { showAdd = false },
             onConfirm = { text, time ->
-                val r = Reminder(System.currentTimeMillis(), text, time)
+                val r = Reminder(store.nextId(), text, time)
                 store.add(r)
                 ReminderScheduler.schedule(ctx, r)
                 items = store.all()
