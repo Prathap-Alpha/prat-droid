@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "bw.alphadirect.pratdroid"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 35
         versionCode = (project.findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 1
         versionName = (project.findProperty("appVersionName") as String?) ?: "1.0"
     }

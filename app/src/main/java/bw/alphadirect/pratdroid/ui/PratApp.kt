@@ -46,6 +46,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bw.alphadirect.pratdroid.R
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import bw.alphadirect.pratdroid.cast.ScreenRecordService
 import bw.alphadirect.pratdroid.ui.theme.Accent
 import bw.alphadirect.pratdroid.util.Actions
 
@@ -74,6 +82,18 @@ private data class Tile(
 @Composable
 fun HomeScreen(onOpen: (Screen) -> Unit) {
     val ctx = LocalContext.current
+    val recordLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            val i = Intent(ctx, ScreenRecordService::class.java).apply {
+                action = ScreenRecordService.ACTION_START
+                putExtra(ScreenRecordService.EXTRA_CODE, result.resultCode)
+                putExtra(ScreenRecordService.EXTRA_DATA, result.data)
+            }
+            ContextCompat.startForegroundService(ctx, i)
+        }
+    }
     val tiles = listOf(
         Tile("Reminders", "Set & get notified", Icons.Filled.NotificationsActive, Accent) {
             onOpen(Screen.Reminders)
@@ -90,8 +110,9 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
         Tile("Add to Calendar", "Syncs to Outlook", Icons.Filled.CalendarMonth, Color(0xFFFF9500)) {
             Actions.newCalendarEvent(ctx, "New event", System.currentTimeMillis() + 3_600_000)
         },
-        Tile("Cast Screen", "Mirror to TV", Icons.Filled.Cast, Color(0xFFFF2D55)) {
-            Actions.openCastSettings(ctx)
+        Tile("Record Screen", "Capture to a video", Icons.Filled.Cast, Color(0xFFFF2D55)) {
+            val mpm = ctx.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            recordLauncher.launch(mpm.createScreenCaptureIntent())
         }
     )
 
