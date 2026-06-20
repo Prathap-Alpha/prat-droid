@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,7 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Cast
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Today
@@ -53,11 +57,13 @@ import android.media.projection.MediaProjectionManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import bw.alphadirect.pratdroid.cast.ScreenRecordService
 import bw.alphadirect.pratdroid.ui.theme.Accent
 import bw.alphadirect.pratdroid.util.Actions
 
-enum class Screen { Splash, Home, Reminders, DayPlan, QuickSend }
+enum class Screen { Splash, Home, Reminders, DayPlan, QuickSend, Notes, Status }
 
 @Composable
 fun PratApp() {
@@ -68,6 +74,21 @@ fun PratApp() {
         Screen.Reminders -> RemindersScreen(onBack = { screen = Screen.Home })
         Screen.DayPlan -> DayPlanScreen(onBack = { screen = Screen.Home })
         Screen.QuickSend -> QuickSendScreen(onBack = { screen = Screen.Home })
+        Screen.Notes -> NotesScreen(onBack = { screen = Screen.Home })
+        Screen.Status -> DeviceStatusScreen(onBack = { screen = Screen.Home })
+    }
+}
+
+private fun setTorch(ctx: Context, on: Boolean): Boolean {
+    return try {
+        val cm = ctx.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val id = cm.cameraIdList.firstOrNull {
+            cm.getCameraCharacteristics(it).get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+        } ?: return false
+        cm.setTorchMode(id, on)
+        true
+    } catch (e: Exception) {
+        false
     }
 }
 
@@ -94,6 +115,7 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
             ContextCompat.startForegroundService(ctx, i)
         }
     }
+    var torchOn by remember { mutableStateOf(false) }
     val tiles = listOf(
         Tile("Reminders", "Set & get notified", Icons.Filled.NotificationsActive, Accent) {
             onOpen(Screen.Reminders)
@@ -113,6 +135,15 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
         Tile("Record Screen", "Capture to a video", Icons.Filled.Cast, Color(0xFFFF2D55)) {
             val mpm = ctx.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             recordLauncher.launch(mpm.createScreenCaptureIntent())
+        },
+        Tile("Notes", "Quick scratchpad", Icons.Filled.EditNote, Color(0xFF00B8A9)) {
+            onOpen(Screen.Notes)
+        },
+        Tile("Flashlight", if (torchOn) "On" else "Off", Icons.Filled.FlashlightOn, Color(0xFFFFB300)) {
+            if (setTorch(ctx, !torchOn)) torchOn = !torchOn
+        },
+        Tile("Device", "Battery & storage", Icons.Filled.PhoneAndroid, Color(0xFF607D8B)) {
+            onOpen(Screen.Status)
         }
     )
 
@@ -144,8 +175,10 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
             Spacer(Modifier.height(20.dp))
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(bottom = 20.dp)
             ) {
                 items(tiles) { t ->
                     FeatureCard(t.title, t.sub, t.icon, t.tint, t.action)
