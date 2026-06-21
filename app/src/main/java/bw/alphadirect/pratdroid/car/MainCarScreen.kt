@@ -1,5 +1,7 @@
 package bw.alphadirect.pratdroid.car
 
+import android.content.Intent
+import android.net.Uri
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
@@ -19,6 +21,28 @@ class MainCarScreen(carContext: CarContext) : Screen(carContext) {
                     .setOnClickListener {
                         CarToast.makeText(carContext, "Message Sent", CarToast.LENGTH_SHORT).show()
                     }
+                    .build()
+            )
+            .addItem(
+                Row.Builder()
+                    .setTitle("Navigate: Tapologo Estates")
+                    .addText("Open turn-by-turn in Maps")
+                    .setOnClickListener {
+                        // Sanctioned car-app navigation handoff to the head-unit nav app.
+                        carContext.startCarApp(
+                            Intent(
+                                CarContext.ACTION_NAVIGATE,
+                                Uri.parse("geo:0,0?q=" + Uri.encode("Tapologo Estates"))
+                            )
+                        )
+                    }
+                    .build()
+            )
+            .addItem(
+                Row.Builder()
+                    .setTitle("Ask Assistant")
+                    .addText("Get a reply from your assistant")
+                    .setOnClickListener { screenManager.push(AssistantCarScreen(carContext)) }
                     .build()
             )
             .build()
