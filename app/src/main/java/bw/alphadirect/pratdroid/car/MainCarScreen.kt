@@ -29,12 +29,16 @@ class MainCarScreen(carContext: CarContext) : Screen(carContext) {
                     .addText("Open turn-by-turn in Maps")
                     .setOnClickListener {
                         // Sanctioned car-app navigation handoff to the head-unit nav app.
-                        carContext.startCarApp(
-                            Intent(
-                                CarContext.ACTION_NAVIGATE,
-                                Uri.parse("geo:0,0?q=" + Uri.encode("Tapologo Estates"))
+                        try {
+                            carContext.startCarApp(
+                                Intent(
+                                    CarContext.ACTION_NAVIGATE,
+                                    Uri.parse("geo:0,0?q=" + Uri.encode("Tapologo Estates"))
+                                )
                             )
-                        )
+                        } catch (e: Exception) {
+                            CarToast.makeText(carContext, "Navigation not available", CarToast.LENGTH_SHORT).show()
+                        }
                     }
                     .build()
             )

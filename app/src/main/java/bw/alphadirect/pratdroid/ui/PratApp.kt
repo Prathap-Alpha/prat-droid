@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Send
@@ -60,6 +61,7 @@ import androidx.core.content.ContextCompat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import bw.alphadirect.pratdroid.cast.ScreenRecordService
+import bw.alphadirect.pratdroid.video.VideoActivity
 import bw.alphadirect.pratdroid.ui.theme.Accent
 import bw.alphadirect.pratdroid.util.Actions
 
@@ -144,6 +146,9 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
         },
         Tile("Device", "Battery & storage", Icons.Filled.PhoneAndroid, Color(0xFF607D8B)) {
             onOpen(Screen.Status)
+        },
+        Tile("Parked Video", "Phone only", Icons.Filled.Movie, Color(0xFFEC407A)) {
+            ctx.startActivity(Intent(ctx, VideoActivity::class.java))
         }
     )
 
