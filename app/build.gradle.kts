@@ -16,6 +16,16 @@ android {
         versionName = (project.findProperty("appVersionName") as String?) ?: "1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            // Standard Android debug keystore (public default creds, not a secret).
+            // Accepted by Play Internal App Sharing. Swap for a real upload key before a production track.
+            storeFile = File(System.getProperty("user.home"), ".android/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -23,6 +33,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
