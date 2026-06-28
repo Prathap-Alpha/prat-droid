@@ -178,6 +178,7 @@ fun HomeScreen(onOpen: (Screen) -> Unit) {
                 }
             }
             Spacer(Modifier.height(20.dp))
+            PermissionBanner()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.weight(1f),
